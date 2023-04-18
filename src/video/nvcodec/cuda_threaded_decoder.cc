@@ -17,7 +17,7 @@ namespace decord {
 namespace cuda {
 using namespace runtime;
 
-#ifdef __APPLE__
+#if defined(__arm__) && defined(__APPLE__)
 CUThreadedDecoder::CUThreadedDecoder(int device_id, AVCodecParameters *codecpar, const AVInputFormat *iformat)
 #else 
 CUThreadedDecoder::CUThreadedDecoder(int device_id, AVCodecParameters *codecpar, AVInputFormat *iformat)
@@ -74,7 +74,7 @@ CUThreadedDecoder::CUThreadedDecoder(int device_id, AVCodecParameters *codecpar,
     }
 }
 
-#ifdef __APPLE__
+#if defined(__arm__) && defined(__APPLE__)
 void CUThreadedDecoder::InitBitStreamFilter(AVCodecParameters *codecpar, const AVInputFormat *iformat) {
 #else 
 void CUThreadedDecoder::InitBitStreamFilter(AVCodecParameters *codecpar, AVInputFormat *iformat) {
