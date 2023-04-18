@@ -7,8 +7,8 @@ echo "[install]" > python/setup.cfg
 echo "install_lib=" >> python/setup.cfg
 
 # Build ffmpeg and decord
-# chmod +x tools/build_macos_11.sh
-# tools/build_macos_10_9.sh
+chmod +x tools/build_macos_10_9.sh
+tools/build_macos_10_9.sh
 
 # Build Wheel
 cd python
