@@ -39,7 +39,8 @@ fi
 
 # Install Pip and Other Dependencies
 python -m pip install --upgrade pip
-pip install twine nose wheel
+pip install twine nose wheel delocate
+source source ~/.bashrc
 
 # Setup.py Hack
 echo "[install]" >python/setup.cfg
@@ -48,12 +49,11 @@ echo "install_lib=" >>python/setup.cfg
 # Build Wheel
 cd python
 python setup.py bdist_wheel
-find ./dist/ -type f -iname "eva_decord*.whl" -exec sh -c 'new_filename=$(echo "$0" | sed -E "s/^(.*-)[0-9]+_[0-9]+(.whl)$/\1'"${target_version}"'\2/"); mv "$0" "$new_filename"' {} \;
+find ./dist/ -type f -iname "eva_decord*.whl" -exec sh -c 'new_filename=$(echo "$0" | sed -E "s/_[0-9]*_[0-9]*/'"_${target_version}"'/"); mv "$0" "$new_filename"' {} \;
 cd ..
 
 # Fix wheel by delocate
 FFMPEG_DIR="$HOME"/ffmpeg_build
-python -m pip install delocate
 ls -lh ./python/dist/*.whl
 find ./python/dist/ -type f -iname "eva_decord*.whl" -exec sh -c "delocate-listdeps '{}'" \;
 mkdir -p ./python/dist/fixed_wheel
