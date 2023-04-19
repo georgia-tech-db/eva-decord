@@ -1,40 +1,9 @@
 version: 2.1
 
 jobs:
-  build_arm:
-    macos:
-      xcode: "13.2.1"
-      image: apple/silicon-macos-11.4
-    steps:
-      - checkout
-      - run:
-          name: Build and upload wheels
-          command: |
-            for version in 3.8 3.9 3.10 3.11; do
-              if [[ "${version}" == "3.8" ]]; then
-                arch_flags="-a arm -f"
-              else
-                arch_flags="-a arm"
-              fi
-              
-              pyenv local "${version}"
-              python -m pip install -U pip
-              python -m pip install wheel
-              
-              scripts/create_macos_arm_wheels ${arch_flags}
-            done
-            
-            mkdir -p artifacts
-            cp python/dist/fixed_wheel/*.whl artifacts/
-
-      - store_artifacts:
-          path: artifacts
-          destination: wheels
-
   build_intel:
     macos:
-      xcode: "13.2.1"
-      image: macos-10.15
+      xcode: "14.2.0"
     steps:
       - checkout
       - run:
@@ -66,5 +35,4 @@ jobs:
 workflows:
   build_and_upload_wheels:
     jobs:
-      - build_arm
       - build_intel
