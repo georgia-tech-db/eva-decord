@@ -9,6 +9,7 @@ jobs:
       - run:
           name: Build and upload wheels
           command: |
+            brew install python3.8 python3.9 python3.10 python3.11
             pyenv local 3.8
             python -m pip install -U pip
             python -m pip install wheel
