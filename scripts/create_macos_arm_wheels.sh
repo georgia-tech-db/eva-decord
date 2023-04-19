@@ -1,26 +1,61 @@
+#!/bin/bash
+
+# Set default values for options
+arch="intel"
+target_version="10_9"
+build_ffmpeg=false
+
+# Parse command-line options
+while getopts ":a:f" opt; do
+    case ${opt} in
+    a) # Specify architecture
+        arch=$OPTARG
+        ;;
+    f) # Build ffmpeg
+        build_ffmpeg=true
+        ;;
+    \?) # Invalid option
+        echo "Usage: $0 [-a arm|intel] [-f]" 1>&2
+        exit 1
+        ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+# run the build script only if the build_ffmpeg flag is set
+if [ "$build_ffmpeg" = true ]; then
+    if [ "$arch" == "arm" ]; then
+        target_version="11_0"
+        chmod +x tools/build_macos_arm.sh
+        tools/build_macos_arm.sh
+    elif [ "$arch" == "intel" ]; then
+        chmod +x tools/build_macos_intel.sh
+        tools/build_macos_intel.sh
+    else
+        echo "Invalid architecture: $arch"
+        exit 1
+    fi
+fi
+
 # Install Pip and Other Dependencies
 python -m pip install --upgrade pip
 pip install twine nose wheel
 
 # Setup.py Hack
-echo "[install]" > python/setup.cfg
-echo "install_lib=" >> python/setup.cfg
-
-# Build ffmpeg and decord
-chmod +x tools/build_macos_10_9.sh
-tools/build_macos_10_9.sh
+echo "[install]" >python/setup.cfg
+echo "install_lib=" >>python/setup.cfg
 
 # Build Wheel
 cd python
 python setup.py bdist_wheel
-find ./dist/ -type f -iname "eva_decord*.whl" -exec sh -c 'mv $0 ${0/\13/11}' {} \;
+find ./dist/ -type f -iname "eva_decord*.whl" -exec sh -c 'new_filename=$(echo "$0" | sed -E "s/^(.*-)[0-9]+_[0-9]+(.whl)$/\1'"${target_version}"'\2/"); mv "$0" "$new_filename"' {} \;
 cd ..
 
 # Fix wheel by delocate
 FFMPEG_DIR="$HOME"/ffmpeg_build
 python -m pip install delocate
 ls -lh ./python/dist/*.whl
-find ./python/dist/ -type f -iname "decord*.whl" -exec sh -c "delocate-listdeps '{}'" \;
+find ./python/dist/ -type f -iname "eva_decord*.whl" -exec sh -c "delocate-listdeps '{}'" \;
 mkdir -p ./python/dist/fixed_wheel
 cd ./python/dist/
 cp "$FFMPEG_DIR"/lib/libvpx*.dylib .
