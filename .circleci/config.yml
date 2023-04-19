@@ -1,13 +1,22 @@
 version: 2.1
 
 jobs:
-  build_intel:
+  build_macos_wheels:
+    parameters:
+      architecture:
+        type: string
+        default: "intel"
+      machine:
+        type: string
+        default: "medium"
     macos:
       xcode: "14.2.0"
+    resource_class:
+      <<parameters.machine>>
     steps:
       - checkout
       - run:
-          name: Build and upload wheels
+          name: Run Build Script
           command: |
             brew install python@3.8 python@3.9 python@3.10 python@3.11
 
@@ -21,24 +30,32 @@ jobs:
               python -m pip install wheel
               
               if [[ "${version}" == "3.8" ]]; then
-                arch_flags="-a intel -f"
+                arch_flags="-a ${ARCHITECTURE} -f"
               else
-                arch_flags="-a intel"
+                arch_flags="-a ${ARCHITECTURE}"
               fi
               
-              scripts/create_macos_arm_wheels.sh ${arch_flags}
+              scripts/create_macos_wheels.sh ${arch_flags}
               
               deactivate
             done
             
             mkdir -p artifacts
             cp python/dist/fixed_wheel/*.whl artifacts/
-
       - store_artifacts:
           path: artifacts
           destination: wheels
 
+
 workflows:
   build_and_upload_wheels:
     jobs:
-      - build_intel
+      - build_macos_wheels:
+          name: build_macos_wheels_intel
+          architecture: "intel"
+          machine: "medium"
+      - build_macos_wheels:
+          name: build_macos_wheels_arm
+          architecture: "arm"
+          machine: "macos.m1.large.gen1"
+
