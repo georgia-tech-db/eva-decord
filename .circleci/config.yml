@@ -30,9 +30,9 @@ jobs:
               python -m pip install wheel
               
               if [[ "${version}" == "3.8" ]]; then
-                arch_flags="-a ${ARCHITECTURE} -f"
+                arch_flags="-a <<parameters.architecture> -f"
               else
-                arch_flags="-a ${ARCHITECTURE}"
+                arch_flags="-a <<parameters.architecture>"
               fi
               
               scripts/create_macos_wheels.sh ${arch_flags}
