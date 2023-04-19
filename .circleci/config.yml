@@ -9,21 +9,26 @@ jobs:
       - run:
           name: Build and upload wheels
           command: |
-            brew install python3.8 python3.9 python3.10 python3.11
-            pyenv local 3.8
-            python -m pip install -U pip
-            python -m pip install wheel
-                        
-            arch_flags="-a intel -f"
-            scripts/create_macos_arm_wheels ${arch_flags}
+            brew install python@3.8 python@3.9 python@3.10 python@3.11
+
+            git submodule update --init --recursive
             
             for version in 3.8 3.9 3.10 3.11; do
-              pyenv local "${version}"
+              python"${version}" -m venv env"${version}"
+              source env"${version}"/bin/activate
+
               python -m pip install -U pip
               python -m pip install wheel
               
-              arch_flags="-a intel"
-              scripts/create_macos_arm_wheels ${arch_flags}
+              if [[ "${version}" == "3.8" ]]; then
+                arch_flags="-a intel -f"
+              else
+                arch_flags="-a intel"
+              fi
+              
+              scripts/create_macos_arm_wheels.sh ${arch_flags}
+              
+              deactivate
             done
             
             mkdir -p artifacts

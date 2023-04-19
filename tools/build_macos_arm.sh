@@ -22,7 +22,7 @@ cd ~/ffmpeg_sources
 git clone --depth 1 https://code.videolan.org/videolan/x264.git
 cd x264
 ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-shared --extra-cflags=-mmacosx-version-min=10.9 --extra-ldflags=-mmacosx-version-min=10.9
-make -j$(nproc)
+make
 make install
 
 # libvpx
@@ -30,7 +30,7 @@ cd ~/ffmpeg_sources
 git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git
 cd libvpx
 ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm --enable-shared --extra-cflags=-mmacosx-version-min=10.9 --extra-cxxflags=-mmacosx-version-min=10.9
-make -j$(nproc)
+make
 make install
 
 # ffmpeg
@@ -50,7 +50,7 @@ cd ffmpeg-5.1.2
   --enable-libvpx \
   --enable-libx264 \
   --disable-static
-make
+mak
 make install
 
 # built libs
@@ -61,5 +61,5 @@ popd
 pwd
 mkdir -p build && cd build
 cmake .. -DUSE_CUDA=0 -DFFMPEG_DIR="$HOME/ffmpeg_build"
-make -j$(nproc)
+make 
 ls -lh
