@@ -55,7 +55,7 @@ jobs:
           name: Run Build Script
           command: |
             git submodule update --init --recursive
-            scripts/build_manylinux2010.sh
+            tools/build_manylinux2010.sh
       - run:
           name: Run cibuildwheel
           command: |
