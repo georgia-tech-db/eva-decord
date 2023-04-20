@@ -40,7 +40,7 @@ fi
 # Install Pip and Other Dependencies
 python -m pip install --upgrade pip
 pip install twine nose wheel delocate
-source source ~/.bashrc
+source ~/.bashrc
 
 # Setup.py Hack
 echo "[install]" >python/setup.cfg
