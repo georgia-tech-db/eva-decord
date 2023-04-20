@@ -8,7 +8,7 @@ set -e
 pwd
 
 # build tools
-yum install -y autoconf automake bzip2 bzip2-devel freetype-devel gcc gcc-c++ git libtool make mercurial pkgconfig zlib-devel
+# yum install -y autoconf automake bzip2 bzip2-devel freetype-devel gcc gcc-c++ git libtool make mercurial pkgconfig zlib-devel
 
 # cmake
 pushd ~
