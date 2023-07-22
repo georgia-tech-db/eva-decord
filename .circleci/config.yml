@@ -1,0 +1,114 @@
+version: 2.1
+
+jobs:
+  build_macos_wheels:
+    parameters:
+      architecture:
+        type: string
+        default: "intel"
+      machine:
+        type: string
+        default: "medium"
+    macos:
+      xcode: "14.2.0"
+    resource_class:
+      <<parameters.machine>>
+    steps:
+      - checkout
+      - run:
+          name: Run Build Script
+          command: |
+            brew install python@3.8 python@3.9 python@3.10 python@3.11
+
+            git submodule update --init --recursive
+            
+            for version in 3.8 3.9 3.10 3.11; do
+              python"${version}" -m venv env"${version}"
+              source env"${version}"/bin/activate
+
+              python -m pip install -U pip
+              python -m pip install wheel
+              
+              if [[ "${version}" == "3.8" ]]; then
+                arch_flags="-a <<parameters.architecture>> -f"
+              else
+                arch_flags="-a <<parameters.architecture>>"
+              fi
+              
+              scripts/create_macos_wheels.sh ${arch_flags}
+              
+              deactivate
+            done
+            
+            mkdir -p artifacts
+            cp python/dist/fixed_wheel/*.whl artifacts/
+      - store_artifacts:
+          path: artifacts
+          destination: mac_os_wheels
+  build_linux_wheels:
+    resource_class: medium
+    docker:
+      - image: circleci/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: Run Build Script
+          command: |
+            git submodule update --init --recursive
+            chmod +x tools/build_manylinux2010.sh
+            tools/build_manylinux2010.sh
+      - run:
+          name: Run cibuildwheel
+          command: |
+            pip3 install --user cibuildwheel==2.12.3
+            cd python
+            python3 -m cibuildwheel --output-dir dist
+      - store_artifacts:
+          path: python/dist/fixed_wheel
+          destination: linux_wheels
+
+
+  fix_linux_windows_wheels:
+    parameters:
+      eva_decord_version:
+        type: string
+        default: "0.7.0"
+    resource_class: medium
+    docker:
+      - image: circleci/python:3.8
+    steps:
+      - checkout
+      - run:
+          name: Download And Fix Wheels
+          command: |
+            mkdir artifacts && cd artifacts
+            # Download the windows and linux wheels from existing releases
+            wget https://files.pythonhosted.org/packages/6c/be/e15b5b866da452e62635a7b27513f31cb581fa2ea9cc9b768b535d62a955/decord-0.6.0-py3-none-win_amd64.whl
+            wget https://files.pythonhosted.org/packages/11/79/936af42edf90a7bd4e41a6cac89c913d4b47fa48a26b042d5129a9242ee3/decord-0.6.0-py3-none-manylinux2010_x86_64.whl 
+
+            cd ..
+            python scripts/fix_wheels.py temp/ --force_version <<parameters.eva_decord_version>>
+      - store_artifacts:
+          path: artifacts
+          destination: linux_windows_wheels
+          
+workflows:
+  build_and_upload_wheels:
+    jobs:
+      - build_linux_wheels:
+          name: build_linux_wheels
+      # - build_macos_wheels:
+      #     name: build_macos_wheels_intel
+      #     architecture: "intel"
+      #     machine: "medium"
+      # Our current pricing plan does not allow us to run on m1 machines
+      # - build_macos_wheels:
+      #     name: build_macos_wheels_arm
+      #     architecture: "arm"
+      #     machine: "macos.m1.large.gen1"
+      # Old job that is not used anymore
+      # - fix_linux_windows_wheels:
+      #     name: fix_linux_windows_wheels
+      #     eva_decord_version: "0.7.0"
+
+

@@ -145,7 +145,7 @@ VideoReader::~VideoReader(){
 
 void VideoReader::SetVideoStream(int stream_nb) {
     if (!fmt_ctx_) return;
-    #ifdef __APPLE__
+    #if defined(__arm__) && defined(__APPLE__)
         const AVCodec *dec;
     #else
         AVCodec *dec;

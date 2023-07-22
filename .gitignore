@@ -43,3 +43,7 @@ __pycache__
 python/build/
 python/*egg-info/
 python/dist/
+
+delocate*/
+packaging*/
+setup.cfg

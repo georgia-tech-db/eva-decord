@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 #include <libavcodec/avcodec.h>
-#ifdef __APPLE__
+#if defined(__arm__) && defined(__APPLE__)
     #include <libavcodec/bsf.h>
 #endif
 #include <libavformat/avformat.h>

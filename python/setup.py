@@ -69,7 +69,7 @@ if include_libs:
 
 setup(
     name='eva-decord',
-    version="0.6.0",
+    version="0.7.0",
     description='EVA\'s Decord Video Loader',
     zip_safe=False,
     maintainer='Decord committers',
