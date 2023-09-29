@@ -64,7 +64,7 @@ if include_libs:
     rpath = [os.path.relpath(path, CURRENT_DIR) for path in LIBS]
     setup_kwargs = {
         "include_package_data": True,
-        "data_files": [('decord', ['libdecord.dylib'])]
+        "data_files": [('decord', rpath)]
     }
 
 setup(
